@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/board_bg"
+    android:clipChildren="false">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="Reset"
+        android:id="@+id/reset_button"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/turn_indicator"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Turn:"/>
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:id="@+id/turn_indicator_image"
+            android:src="@drawable/red"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UNDO"
+            android:id="@+id/undo_button"/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/turn_indicator"
+
+        android:id="@+id/winner_text"
+        android:textStyle="bold"
+        android:textSize="40sp"
+        android:gravity="center_horizontal"
+        android:text="Winner!"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+
+        android:orientation="vertical"
+        android:id="@+id/canvasLayout"
+        android:clipChildren="false"
+        android:gravity="bottom"
+        tools:context=".activity_game">
+
+    </LinearLayout>
+
+
+</RelativeLayout>
