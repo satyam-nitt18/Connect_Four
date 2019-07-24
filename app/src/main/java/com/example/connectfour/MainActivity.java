@@ -1,6 +1,7 @@
 package com.example.connectfour;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,20 +23,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
 
         connect=(ImageView)findViewById(R.id.connect_text);
-        play=(Button)findViewById(R.id.button);
-
         animation= AnimationUtils.loadAnimation(this, R.anim.scale);
        connect.startAnimation(animation);
 
+        new Handler().postDelayed(new Runnable() {
 
-       final Intent intent = new Intent(this, activity_game.class);
-
-        play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void run() {
+                Intent i = new Intent(MainActivity.this, GameMenuActivity.class);
+                startActivity(i);
 
-                startActivity(intent);
+                // close this activity
+                finish();
             }
-        });
+        }, 2000);
     }
 }

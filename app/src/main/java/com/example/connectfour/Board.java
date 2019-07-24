@@ -4,7 +4,7 @@ public class Board {
 
     private int numCols, numRows;
     public boolean Won;
-    private Cell[][] cells;
+    public int[][] cells;
     public int turn;
 
     public int players[]={1, 2};
@@ -13,7 +13,7 @@ public class Board {
     {
         numCols=cols;
         numRows=rows;
-        cells=new Cell[numRows][numCols];
+        cells=new int[numRows][numCols];
         reset();
     }
 
@@ -25,7 +25,7 @@ public class Board {
         {
             for (int col=0;col<numCols;col++)
             {
-                cells[row][col]=new Cell();
+                cells[row][col]=0;
             }
         }
     }
@@ -34,7 +34,7 @@ public class Board {
     {
         for(int row=numRows-1;row>=0;row--)
         {
-            if(cells[row][col].empty)
+            if(cells[row][col]==0)
                 return row;
         }
         return -1;
@@ -42,7 +42,8 @@ public class Board {
 
     public void occupyCell(int row, int col, int player)
     {
-        cells[row][col].setPlayer(player);
+        cells[row][col]=player;
+
     }
 
     public void changePlayer()
@@ -76,7 +77,7 @@ public class Board {
         if (col < 0 || col >= numCols || row < 0 || row >= numRows) {
             return false;
         }
-        if (cells[row][col].player == player) {
+        if (cells[row][col] == player) {
             return isConnected(player, dirX, dirY, col + dirX, row + dirY, count + 1);
         } else {
             return isConnected(player, dirX, dirY, col + dirX, row + dirY, 0);

@@ -1,12 +1,15 @@
 package com.example.connectfour;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,27 +22,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static java.security.AccessController.getContext;
-
-
 public class activity_game extends AppCompatActivity {
 
-    private Board board;
-    private View boardView;
-    private MyView customView;
-    private ViewHolder viewHolder;
-    private int[][] cells;
+    public Board board;
+    private Paint fillPaint;
+    public MyView customView;
+    public ViewHolder viewHolder;
+    public int[][] cells;
     public static int numCols=7;
     public static int numRows=6;
-    private Button resetButton, undoButton;
+    public Button resetButton, undoButton;
     LinearLayout linearLayout;
-    public static float cellWidth, cellHeight;
-    private Canvas actCanvas;
-    private Paint fillPaint;
-    public boolean action=false;
+    public Canvas actCanvas;
+    public float coin_x, coin_y, translateY;
+    public Bitmap coin1, coin2;
 
+    private static final String TAG = "activity_game";
 
-    private class ViewHolder{
+    public class ViewHolder{
 
         public TextView winText;
         public ImageView turnIndicatorImage;
@@ -59,24 +59,26 @@ public class activity_game extends AppCompatActivity {
         linearLayout=(LinearLayout)findViewById(R.id.canvasLayout);
         resetButton=findViewById(R.id.reset_button);
         undoButton=findViewById(R.id.undo_button);
-        cellHeight=1182/numRows;
-        cellWidth=720/numCols;
+        constructCells();
+
 
         customView=new MyView(this);
         linearLayout.addView(customView);
 
         customView.setGrid(numRows, numCols);
 
-        constructCells();
         customView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                if(event.getAction()==MotionEvent.ACTION_UP)
+                if(event.getAction()==MotionEvent.ACTION_DOWN)
                 {
-                    int col=colSelected(event.getX());
+                    int col=customView.colSelected(event.getX());
                     if(col != -1)
-                        dropCoin(col);
+                        drawCoin(col);
+                    }
+                if(event.getAction()==MotionEvent.ACTION_UP) {
+                    droppedCoin();
                 }
                 return true;
             }
@@ -93,36 +95,49 @@ public class activity_game extends AppCompatActivity {
         viewHolder.winText=(TextView)findViewById(R.id.winner_text);
         viewHolder.winText.setVisibility(View.INVISIBLE);
     }
-    public void dropCoin(int col)
-    {
-        if(board.Won==true)
+    public void drawCoin(int col) {
+        customView.initialize(cells);
+        
+        if (board.Won)
             return;
-        int row=board.lastAvailableRow(col);
-        if(row == -1)
+        int row = board.lastAvailableRow(col);
+        if (row == -1)
             return;
 
         board.occupyCell(row, col, board.turn);
-        float x=(cellWidth*(col+1))/2;
-        float y=1182-((cellHeight*(row+1))/2 + 50);
-        customView.draw(actCanvas, x, y, board.turn);
-        showToast("x ="+x+"y ="+y);
+        cells[row][col]=board.turn;
+
+        customView.coin_x=customView.getCoordinateX(row, col);
+        customView.translateY=customView.getTranslateY(row);
+        /*if(board.turn==1)
+            coin1 = BitmapFactory.decodeResource(getResources(), R.drawable.red_coin);
+         else
+             coin2=BitmapFactory.decodeResource(getResources(), R.drawable.yellow_coin);*/
+
+        customView.canDraw=true;
+
+        //actCanvas.drawBitmap(coin, coin_x, coin_y, null);
+         Log.d(TAG, "Bitmap drawn");
+
+    }
 
 
-         action=true;
-         customView=new MyView(this);
-         action=false;
-       actCanvas.save();
-        actCanvas.translate(0, y);
-        customView.draw(actCanvas, x, y, board.turn);
+    public void droppedCoin(){
+       /* while(coin_y!=translateY)
+        {
+            coin_y=coin_y+10;
+            actCanvas.drawBitmap(coin, coin_x, coin_y, null);
+        }*/
 
-        undoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actCanvas.restore();
-            }
-        });
 
-        if(board.checkForWin()==true)
+       // undoButton.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            //public void onClick(View v) {
+            //    actCanvas.restore();
+          //  }
+        //});
+
+        if(board.checkForWin())
         {
             int color;
             if(board.turn==1)
@@ -137,29 +152,25 @@ public class activity_game extends AppCompatActivity {
             board.changePlayer();
             viewHolder.turnIndicatorImage.setImageResource(turnResource());
         }
+        customView.initialize(cells);
+
     }
-    private void constructCells()
+    public void constructCells()
     {
         cells = new int[numRows][numCols];
         for (int r=0; r<numRows; r++)
                        for (int c = 0; c < numCols; c++)
                            cells[r][c] = 0;
     }
-    public int colSelected(float x)
-    {
-        int col = (int) x / (int) cellWidth;
-        if(col < 0 || col > numCols)
-            return -1;
-        return col;
-    }
-    private int turnResource()
+
+    public int turnResource()
     {
         if(board.turn==2)
             return R.drawable.yellow;
         else
             return R.drawable.red;
     }
-    private void reset()
+    public void reset()
     {
         board.reset();
         viewHolder.winText.setVisibility(View.INVISIBLE);
